@@ -9,7 +9,10 @@ import java.time.Year;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
+
 
 @Service
 @AllArgsConstructor
@@ -25,12 +28,21 @@ public class HolidayServiceImpl implements HolidayService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Integer countNonWeekendHolidays(String countryCode, int year) {
-        List<HolidayDto> holidays = nagerDateClient.getHolidays(year, countryCode);
-        return (int) holidays.stream()
-                .filter(holiday -> !isWeekend(holiday.getDate()))
-                .count();
+    public Map<String, Integer> countNonWeekendHolidaysForCountries(List<String> countryCodes, int year) {
+        // The results are sorted in descending order based on the count.
+        return countryCodes.stream()
+                .collect(Collectors.toMap(
+                        countryCode -> countryCode,
+                        countryCode -> countNonWeekendHolidays(countryCode, year)
+                ))
+                .entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
     }
 
     @Override
@@ -46,5 +58,11 @@ public class HolidayServiceImpl implements HolidayService {
     private boolean isWeekend(LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
+    }
+    private Integer countNonWeekendHolidays(String countryCode, int year) {
+        List<HolidayDto> holidays = nagerDateClient.getHolidays(year, countryCode);
+        return (int) holidays.stream()
+                .filter(holiday -> !isWeekend(holiday.getDate()))
+                .count();
     }
 }

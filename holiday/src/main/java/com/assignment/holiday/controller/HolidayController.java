@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/api/holidays", produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -28,11 +27,7 @@ public class HolidayController {
     @Operation(summary = "Get the number of public holidays not falling on weekends for given country codes")
     @GetMapping("/{year}/count")
     public ResponseEntity<Map<String, Integer>> countNonWeekendHolidays(@PathVariable int year, @RequestParam List<String> countryCodes) {
-        Map<String, Integer> holidayCounts = countryCodes.stream()
-                .collect(Collectors.toMap(
-                        countryCode -> countryCode,
-                        countryCode -> holidayService.countNonWeekendHolidays(countryCode, year)
-                ));
+        Map<String, Integer> holidayCounts = holidayService.countNonWeekendHolidaysForCountries(countryCodes, year);
         return ResponseEntity.ok(holidayCounts);
     }
     @Operation(summary = "Get the common holidays for two countries in a given year")
