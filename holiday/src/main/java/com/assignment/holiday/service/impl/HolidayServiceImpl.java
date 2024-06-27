@@ -5,10 +5,9 @@ import com.assignment.holiday.service.HolidayService;
 import com.assignment.holiday.service.client.NagerDateClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import java.time.Year;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,28 +17,28 @@ public class HolidayServiceImpl implements HolidayService {
     private final NagerDateClient nagerDateClient;
     @Override
     public List<HolidayDto> getLast3Holidays(String countryCode) {
-        int currentYear = java.time.Year.now().getValue();
-        HolidayDto[] holidays = getHolidays(countryCode, currentYear);
-        return Arrays.stream(holidays)
+        int currentYear = Year.now().getValue();
+        List<HolidayDto> holidays = nagerDateClient.getHolidays(currentYear, countryCode);
+        return holidays.stream()
                 .sorted((h1, h2) -> h2.getDate().compareTo(h1.getDate()))
                 .limit(3)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public long countNonWeekendHolidays(String countryCode, int year) {
-        HolidayDto[] holidays = getHolidays(countryCode, year);
-        return Arrays.stream(holidays)
+    public Integer countNonWeekendHolidays(String countryCode, int year) {
+        List<HolidayDto> holidays = nagerDateClient.getHolidays(year, countryCode);
+        return (int) holidays.stream()
                 .filter(holiday -> !isWeekend(holiday.getDate()))
                 .count();
     }
 
     @Override
     public List<HolidayDto> getCommonHolidays(String countryCode1, String countryCode2, int year) {
-        HolidayDto[] holidays1 = getHolidays(countryCode1, year);
-        HolidayDto[] holidays2 = getHolidays(countryCode2, year);
-        return Arrays.stream(holidays1)
-                .filter(h1 -> Arrays.stream(holidays2).anyMatch(h2 -> h2.getDate().equals(h1.getDate())))
+        List<HolidayDto> holidays1 = nagerDateClient.getHolidays(year, countryCode1);
+        List<HolidayDto> holidays2 = nagerDateClient.getHolidays(year, countryCode2);
+        return holidays1.stream()
+                .filter(h1 -> holidays2.stream().anyMatch(h2 -> h2.getDate().equals(h1.getDate())))
                 .distinct()
                 .collect(Collectors.toList());
     }
@@ -47,8 +46,5 @@ public class HolidayServiceImpl implements HolidayService {
     private boolean isWeekend(LocalDate date) {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
-    }
-    private HolidayDto[] getHolidays(String countryCode, int year) {
-        return nagerDateClient.getHolidays(year, countryCode);
     }
 }

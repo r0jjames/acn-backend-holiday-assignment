@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface HolidayService {
     List<HolidayDto> getLast3Holidays(String countryCode);
-    long countNonWeekendHolidays(String countryCode, int year);
+    Integer countNonWeekendHolidays(String countryCode, int year);
     List<HolidayDto> getCommonHolidays(String countryCode1, String countryCode2, int year);
 }

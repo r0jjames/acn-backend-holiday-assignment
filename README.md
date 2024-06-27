@@ -24,6 +24,7 @@ This project is a Spring Boot application that retrieves holiday information fro
     ```bash
     ./mvnw spring-boot:run
     ```
+4. The application uses OpenAPI (Swagger) for API documentation. Once the application is running, you can access the documentation UI at: http://localhost:8080/swagger-ui.html
 
 ## API Endpoints
 
@@ -31,6 +32,5 @@ This project is a Spring Boot application that retrieves holiday information fro
 - `GET /api/holidays/{year}/count` - Get the number of public holidays not falling on weekends for given country codes.
 - `GET /api/holidays/{year}/common` - Get the common holidays for two countries in a given year.
 
-## OpenAPI Documentation
 
-The application uses OpenAPI (Swagger) for API documentation. Once the application is running, you can access the documentation UI at: http://localhost:8080/swagger-ui.html
+
