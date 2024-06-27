@@ -12,7 +12,7 @@ This project is a Spring Boot application that retrieves holiday information fro
 1. Clone the repository:
     ```bash
     git clone https://github.com/r0jjames/acn-backend-holiday-assignment.git
-    cd acn-backend-holiday-assignment
+    cd acn-backend-holiday-assignment/holiday
     ```
 
 2. Build the project:
