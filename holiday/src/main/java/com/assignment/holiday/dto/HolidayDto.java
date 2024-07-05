@@ -1,6 +1,7 @@
 package com.assignment.holiday.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -9,6 +10,7 @@ import java.time.LocalDate;
         name = "Holiday",
         description = "Schema to hold Holiday Information"
 )
+@AllArgsConstructor
 public class HolidayDto {
    @Schema(description = "Date of the holiday", example = "2024-01-01")
    private LocalDate date;

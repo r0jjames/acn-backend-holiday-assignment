@@ -5,32 +5,35 @@ import com.assignment.holiday.service.HolidayService;
 import com.assignment.holiday.service.client.NagerDateClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.Year;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.LinkedHashMap;
 
-
 @Service
 @AllArgsConstructor
 public class HolidayServiceImpl implements HolidayService {
     private final NagerDateClient nagerDateClient;
+
     @Override
     public List<HolidayDto> getLast3Holidays(String countryCode) {
-        int currentYear = Year.now().getValue();
+        LocalDate currentDate = LocalDate.now();
+        int currentYear = currentDate.getYear();
         List<HolidayDto> holidays = nagerDateClient.getHolidays(currentYear, countryCode);
         return holidays.stream()
-                .sorted((h1, h2) -> h2.getDate().compareTo(h1.getDate()))
+                .filter(h -> h.getDate().isBefore(currentDate))
+                .sorted(Comparator.comparing(HolidayDto::getDate).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Map<String, Integer> countNonWeekendHolidaysForCountries(List<String> countryCodes, int year) {
         // The results are sorted in descending order based on the count.
-        return countryCodes.stream()
+        return countryCodes.parallelStream()
                 .collect(Collectors.toMap(
                         countryCode -> countryCode,
                         countryCode -> countNonWeekendHolidays(countryCode, year)
@@ -59,6 +62,7 @@ public class HolidayServiceImpl implements HolidayService {
         DayOfWeek dayOfWeek = date.getDayOfWeek();
         return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
     }
+
     private Integer countNonWeekendHolidays(String countryCode, int year) {
         List<HolidayDto> holidays = nagerDateClient.getHolidays(year, countryCode);
         return (int) holidays.stream()
